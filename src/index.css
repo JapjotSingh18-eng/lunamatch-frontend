@@ -1512,3 +1512,388 @@ main {
     gap: 12px;
   }
 }
+/* ============================= */
+/* BACKEND STATUS */
+/* ============================= */
+
+.backend-status {
+  width: min(700px, 100%);
+  margin: 20px auto;
+  padding: 14px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  color: #b9d8ff;
+  font-size: 0.9rem;
+
+  background: rgba(37, 99, 235, 0.08);
+
+  border: 1px solid rgba(96, 165, 250, 0.25);
+
+  border-radius: 12px;
+
+  animation:
+    statusAppear 0.4s ease,
+    statusPulse 2s ease-in-out infinite;
+}
+
+.backend-status-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #60a5fa;
+
+  box-shadow:
+    0 0 8px #60a5fa,
+    0 0 16px rgba(96, 165, 250, 0.7);
+
+  animation: statusDotPulse 1.2s infinite;
+}
+
+@keyframes statusAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    border-color: rgba(96, 165, 250, 0.2);
+  }
+
+  50% {
+    border-color: rgba(96, 165, 250, 0.6);
+  }
+}
+
+@keyframes statusDotPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.6;
+  }
+}
+
+
+/* ============================= */
+/* IMPROVED ERROR MESSAGE */
+/* ============================= */
+
+.error-message {
+  width: min(750px, 100%);
+
+  margin: 24px auto;
+
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  color: #fecaca;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(127, 29, 29, 0.25),
+      rgba(69, 10, 10, 0.18)
+    );
+
+  border:
+    1px solid rgba(248, 113, 113, 0.35);
+
+  border-radius: 14px;
+
+  animation:
+    errorAppear 0.4s ease,
+    errorGlow 2s ease-in-out infinite;
+}
+
+.error-message > span {
+  font-size: 1.4rem;
+}
+
+.error-message strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #fca5a5;
+
+  font-size: 0.95rem;
+}
+
+.error-message p {
+  margin: 0;
+
+  color: #fecaca;
+
+  font-size: 0.85rem;
+
+  line-height: 1.6;
+}
+
+@keyframes errorAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes errorGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 rgba(248, 113, 113, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 0 25px rgba(248, 113, 113, 0.1);
+  }
+}
+
+
+/* ============================= */
+/* ANALYZE BUTTON EFFECTS */
+/* ============================= */
+
+.analyze-button {
+  position: relative;
+
+  overflow: hidden;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.analyze-button::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -100%;
+
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
+
+  transform: skewX(-20deg);
+
+  transition: left 0.6s ease;
+}
+
+.analyze-button:hover:not(:disabled)::before {
+  left: 150%;
+}
+
+.analyze-button:hover:not(:disabled) {
+  transform:
+    translateY(-3px)
+    scale(1.02);
+
+  box-shadow:
+    0 12px 35px rgba(59, 130, 246, 0.35);
+}
+
+.analyze-button:active:not(:disabled) {
+  transform:
+    translateY(0)
+    scale(0.98);
+}
+
+.analyze-button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.55;
+
+  filter: grayscale(0.4);
+}
+
+
+/* ============================= */
+/* BUTTON LOADER */
+/* ============================= */
+
+.button-loader {
+  width: 17px;
+  height: 17px;
+
+  border-radius: 50%;
+
+  border: 2px solid rgba(255, 255, 255, 0.3);
+
+  border-top-color: white;
+
+  animation: buttonSpin 0.8s linear infinite;
+}
+
+@keyframes buttonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button-arrow {
+  font-size: 1.2rem;
+
+  transition: transform 0.25s ease;
+}
+
+.analyze-button:hover .button-arrow {
+  transform: translateX(5px);
+}
+
+
+/* ============================= */
+/* ANALYSIS HINT */
+/* ============================= */
+
+.analysis-hint {
+  margin-top: 16px;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  text-align: center;
+
+  font-size: 0.85rem;
+
+  animation: fadeIn 0.5s ease;
+}
+
+.analysis-hint.ready {
+  color: #86efac;
+
+  text-shadow:
+    0 0 10px rgba(134, 239, 172, 0.2);
+}
+
+
+/* ============================= */
+/* RESULTS ANIMATION */
+/* ============================= */
+
+.results-section {
+  animation:
+    resultsAppear 0.7s ease-out;
+}
+
+@keyframes resultsAppear {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================= */
+/* ANALYSIS SECTION */
+/* ============================= */
+
+.analysis-section {
+  min-height: 250px;
+
+  animation: loaderAppear 0.4s ease;
+}
+
+@keyframes loaderAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ============================= */
+/* ACCESSIBILITY */
+/* ============================= */
+
+.analyze-button:focus-visible {
+  outline: 3px solid #93c5fd;
+
+  outline-offset: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .backend-status {
+    font-size: 0.8rem;
+
+    padding: 12px 14px;
+  }
+
+  .error-message {
+    padding: 15px;
+
+    font-size: 0.85rem;
+  }
+
+  .analyze-button {
+    width: 100%;
+  }
+}

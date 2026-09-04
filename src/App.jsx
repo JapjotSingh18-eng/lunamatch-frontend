@@ -6,7 +6,11 @@ import UploadPanel from "./components/UploadPanel.jsx";
 import AnalysisLoader from "./components/AnalysisLoader.jsx";
 import ResultsDashboard from "./components/ResultsDashboard.jsx";
 
-const API_URL = "https://lunamatchai-2.onrender.com/api/match";
+// Use Vercel environment variable.
+// Falls back to your deployed Render backend.
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://lunamatchai-2.onrender.com/api/match";
 
 function App() {
   const [image1, setImage1] = useState(null);
@@ -15,6 +19,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [backendStatus, setBackendStatus] = useState("");
 
   const handleImage1Change = useCallback((file) => {
     setImage1(file);
@@ -32,12 +37,15 @@ function App() {
     if (isAnalyzing) return;
 
     if (!image1 || !image2) {
-      setError("Please upload both lunar images before starting the analysis.");
+      setError(
+        "Please upload both lunar images before starting the analysis."
+      );
       return;
     }
 
     setError("");
     setResult(null);
+    setBackendStatus("Connecting to LunaMatch AI backend...");
     setIsAnalyzing(true);
 
     try {
@@ -46,10 +54,21 @@ function App() {
       formData.append("image1", image1);
       formData.append("image2", image2);
 
+      const controller = new AbortController();
+
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 120000);
+
       const response = await fetch(API_URL, {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
+
+      setBackendStatus("Processing lunar image correspondence...");
 
       const contentType =
         response.headers.get("content-type") || "";
@@ -63,7 +82,7 @@ function App() {
 
         throw new Error(
           text ||
-            "The server returned an invalid response. Please check the FastAPI backend."
+            `Invalid response received from the backend. Status: ${response.status}`
         );
       }
 
@@ -72,45 +91,52 @@ function App() {
           data?.detail ||
             data?.message ||
             data?.error ||
-            "Image analysis failed."
+            `Image analysis failed with status ${response.status}.`
         );
       }
 
       if (!data) {
         throw new Error(
-          "No analysis data was returned from the server."
+          "No analysis data was returned from the LunaMatch AI backend."
         );
       }
+
+      setBackendStatus("Analysis completed successfully.");
 
       setResult(data);
 
       setTimeout(() => {
-        document
-          .getElementById("results")
-          ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-      }, 300);
-
+        document.getElementById("results")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 400);
     } catch (err) {
-      console.error("Analysis Error:", err);
+      console.error("LunaMatch Analysis Error:", err);
 
-      if (
+      if (err.name === "AbortError") {
+        setError(
+          "The analysis request took too long. The Render server may be waking up or processing the images. Please try again."
+        );
+      } else if (
         err.name === "TypeError" ||
         err.message === "Failed to fetch"
       ) {
         setError(
-          "Unable to connect to the backend. Make sure FastAPI is running at http://127.0.0.1:8000."
+          "Unable to connect to the LunaMatch AI backend. The Render server may be waking up or the backend may have a CORS configuration issue. Please wait 30–60 seconds and try again."
         );
       } else {
         setError(
           err.message ||
-            "Unable to complete the image analysis."
+            "Unable to complete the lunar image analysis."
         );
       }
     } finally {
       setIsAnalyzing(false);
+
+      setTimeout(() => {
+        setBackendStatus("");
+      }, 3000);
     }
   };
 
@@ -142,10 +168,10 @@ function App() {
             </h2>
 
             <p>
-              Upload two lunar surface images and let
-              LunaMatch AI analyze feature correspondence,
-              geometric reliability, overlap quality, and
-              image registration.
+              Upload two lunar surface images and let LunaMatch
+              AI analyze feature correspondence, geometric
+              reliability, overlap quality, test conditions,
+              and image registration.
             </p>
           </div>
 
@@ -205,12 +231,29 @@ function App() {
             </div>
           </div>
 
+          {backendStatus && (
+            <div
+              className="backend-status"
+              aria-live="polite"
+            >
+              <span className="backend-status-dot" />
+
+              {backendStatus}
+            </div>
+          )}
+
           {error && (
             <div
               className="error-message"
               role="alert"
             >
-              ⚠ {error}
+              <span>⚠</span>
+
+              <div>
+                <strong>Connection or Analysis Error</strong>
+
+                <p>{error}</p>
+              </div>
             </div>
           )}
 
@@ -220,18 +263,48 @@ function App() {
             onClick={startAnalysis}
             disabled={!canAnalyze}
           >
-            {isAnalyzing
-              ? "ANALYZING IMAGES..."
-              : !image1 || !image2
-              ? "UPLOAD BOTH IMAGES"
-              : "START AI ANALYSIS"}
+            {isAnalyzing ? (
+              <>
+                <span className="button-loader" />
+                ANALYZING IMAGES...
+              </>
+            ) : !image1 || !image2 ? (
+              "UPLOAD BOTH IMAGES"
+            ) : (
+              <>
+                START AI ANALYSIS
+                <span className="button-arrow">→</span>
+              </>
+            )}
           </button>
+
+          {!image1 || !image2 ? (
+            <p className="analysis-hint">
+              Upload both lunar images to unlock AI analysis.
+            </p>
+          ) : (
+            <p className="analysis-hint ready">
+              ✓ Both images are ready for analysis.
+            </p>
+          )}
         </section>
 
-        {isAnalyzing && <AnalysisLoader />}
+        {isAnalyzing && (
+          <section
+            className="analysis-section"
+            aria-live="polite"
+          >
+            <AnalysisLoader />
+          </section>
+        )}
 
         {result && !isAnalyzing && (
-          <ResultsDashboard result={result} />
+          <section
+            id="results"
+            className="results-section"
+          >
+            <ResultsDashboard result={result} />
+          </section>
         )}
       </main>
     </div>
